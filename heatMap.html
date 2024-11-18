@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>旅游攻略</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 20px;
+            display: flex;
+            gap: 20px;
+        }
+        .main-content, .sidebar {
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        .main-content {
+            flex: 2;
+        }
+        .sidebar {
+            flex: 1;
+        }
+        .header {
+            text-align: center;
+            padding-bottom: 10px;
+            color: #008000;
+        }
+        .header h1 {
+            font-size: 24px;
+        }
+        .header p {
+            font-size: 14px;
+            color: #666;
+        }
+        .map-container {
+            margin-top: 20px;
+        }
+        #container {
+            width: 100%;
+            height: 500px;
+            border-radius: 10px;
+        }
+        .return-button {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            padding: 5px 10px;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            z-index: 1000;
+        }
+    </style>
+    <script src="https://webapi.amap.com/maps?v=1.4.14&key=50cf969d9a1aea2f1626fc8f8f1a0468"></script>
+    <script src="http://webapi.amap.com/ui/1.0/main.js?v=1.0.11"></script>
+</head>
+<body>
+<div class="header">
+    <h1>中国内地</h1>
+    <p>查看最新中国旅游攻略，包括北京上海云南西藏新疆等景点，购物、美食、酒店、交通等旅游攻略信息和游记。</p>
+</div>
+
+<div class="container">
+    <div class="main-content">
+        <div class="map-container">
+            <div id="container">
+                <button class="return-button" id="returnCountryBtn">返回全国</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <div class="weather-data">
+            <div class="local-weather" id="localWeather">
+                <h3 id="cityName">长沙市</h3>
+                <a class="details" href="#" id="tourismLink" target="_blank">查看旅游信息</a>
+            </div>
+        </div>
+        <!-- 示例文章列表 -->
+        <div class="post">
+            <p class="post-title">陕西行 --- 我们的退休首旅</p>
+        </div>
+        <div class="post">
+            <p class="post-title">上海四日行 | 在街头漫步，在博物馆看展</p>
+        </div>
+        <div class="post">
+            <p class="post-title">新疆：一半是山川湖海，一半是西域大漠</p>
+        </div>
+        <div class="post">
+            <p class="post-title">黑游记 就在秋天乘着火车慢行</p>
+        </div>
+        <div class="post">
+            <p class="post-title">鲁西南 - 鲁中</p>
+        </div>
+        <div class="post">
+            <p class="post-title">锦州 | 赏雪看海，访古烧烤</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    let amap, districtExplorer, tipMarker, tipMarkerContent, currentAreaNode;
+
+    function initMap() {
+        amap = new AMap.Map("container", {
+            defaultCursor: "pointer",
+            center: [103.714129, 38.150339],
+            zoom: 4,
+            resizeEnable: true,
+            mapStyle: "amap://styles/darkblue"
+        });
+
+        drawArea();
+    }
+
+    function drawArea() {
+        AMapUI.load(["ui/geo/DistrictExplorer", "lib/$"], (DistrictExplorer, $) => {
+            districtExplorer = new DistrictExplorer({
+                eventSupport: true,
+                map: amap
+            });
+
+            tipMarkerContent = $('<div class="tipMarker top"></div>');
+            tipMarker = new AMap.Marker({
+                content: tipMarkerContent.get(0),
+                offset: new AMap.Pixel(0, 0),
+                bubble: true
+            });
+
+            districtExplorer.on("featureMouseout featureMouseover", (e, feature) => {
+                toggleHoverFeature(feature, e.type === "featureMouseover", e.originalEvent ? e.originalEvent.lnglat : null);
+            });
+
+            districtExplorer.on("featureMousemove", e => {
+                tipMarker.setPosition(e.originalEvent.lnglat);
+            });
+
+            districtExplorer.on("featureClick", (e, feature) => {
+                const props = feature.properties;
+                const clickedCityName = props.name;
+                updateCityInfo(clickedCityName);
+                switch2AreaNode(props.adcode);
+            });
+
+            switch2AreaNode(100000);
+        });
+    }
+
+    function toggleHoverFeature(feature, isHover, position) {
+        tipMarker.setMap(isHover ? amap : null);
+        if (!feature) return;
+
+        const props = feature.properties;
+        if (isHover) {
+            tipMarkerContent.html(props.name);
+            tipMarker.setPosition(position || props.center);
+        }
+
+        const polys = districtExplorer.findFeaturePolygonsByAdcode(props.adcode);
+        polys.forEach(element => {
+            const fillColor = getRegionColor(props.adcode, isHover);
+            element.setOptions({ fillColor: fillColor, fillOpacity: isHover ? 0.7 : 0.8 });
+        });
+    }
+
+    function switch2AreaNode(adcode) {
+        if (currentAreaNode && "" + currentAreaNode.getAdcode() === "" + adcode) return;
+
+        loadAreaNode(adcode, (error, areaNode) => {
+            if (error) return;
+            currentAreaNode = areaNode;
+            districtExplorer.setAreaNodesForLocating([currentAreaNode]);
+            renderAreaPolygons(areaNode);
+        });
+    }
+
+    function loadAreaNode(adcode, callback) {
+        districtExplorer.loadAreaNode(adcode, (error, areaNode) => {
+            if (error) {
+                console.error(error);
+                return;
+            }
+            callback(null, areaNode);
+        });
+    }
+
+    function renderAreaPolygons(areaNode) {
+        amap.setBounds(areaNode.getBounds());
+        districtExplorer.clearFeaturePolygons();
+
+        districtExplorer.renderSubFeatures(areaNode, (subFeature) => {
+            const fillColor = getRegionColor(subFeature.properties.adcode);
+            return {
+                cursor: "default",
+                bubble: true,
+                strokeColor: "#fff",
+                strokeOpacity: 0.4,
+                strokeWeight: 1,
+                fillColor: fillColor,
+                fillOpacity: 0.8
+            };
+        });
+
+        districtExplorer.renderParentFeature(areaNode, {
+            cursor: "default",
+            bubble: true,
+            strokeColor: "#fff",
+            strokeOpacity: 1,
+            strokeWeight: 1,
+            fillOpacity: 0
+        });
+    }
+
+    function getRegionColor(adcode, isHover) {
+        const colorBoundaries = {
+            110000: "#d93e42",
+            120000: "#d95742",
+            130000: "#88b88b",
+            140000: "#89b79b",
+            150000: "#8ab6ab",
+            210000: "#f08080",
+            220000: "#f18f80",
+            230000: "#f2ad80",
+            310000: "#fb8c00",
+            320000: "#fba000",
+            330000: "#fcb300",
+            340000: "#f6c3a2",
+            350000: "#f7c4a6",
+            360000: "#f9d7bb",
+            370000: "#fae7cc",
+            410000: "#cfd6e6",
+            420000: "#dfdee6",
+            430000: "#efedf3",
+            440000: "#d3d2d1",
+            450000: "#a2a2a1",
+            460000: "#7b7b7b",
+            500000: "#000000"
+        };
+
+        return colorBoundaries[adcode] || (isHover ? "#33aaff" : "#99c3ff");
+    }
+    function getQunarLink(cityName) {
+        const encodedCityName = encodeURIComponent(cityName);
+        return `https://travel.qunar.com/search/all/${encodedCityName}`;
+    }
+
+    function updateCityInfo(cityName) {
+        document.getElementById('cityName').innerText = cityName;
+        document.getElementById("tourismLink").href = getQunarLink(cityName);
+
+
+        // 获取去哪儿的链接并更新链接文本
+        const tourismLink = getQunarLink(cityName);
+        document.getElementById('tourismLink').href = tourismLink;
+        document.getElementById('tourismLink').innerHTML = `查看${cityName}旅游信息`;
+    }
+
+
+    document.getElementById("returnCountryBtn").onclick = () => switch2AreaNode(100000);
+    initMap();
+</script>
+</body>
+</html>

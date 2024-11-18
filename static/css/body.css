@@ -1,0 +1,328 @@
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(to right, #d0e7e9, #f0f4c3 20%, #f0f4c3 80%, #d0e7e9);
+}
+
+.background-image {
+    position: absolute; /* 绝对定位 */
+    top: 0; /* 根据需要调整这个值 */
+    left: 20%; /* 根据需要调整这个值 */
+    right: 20%; /* 根据需要调整这个值 */
+    bottom: 0; /* 根据需要调整这个值 */
+    background-image: url('../img/bgi.jpg'); /* 替换为您的图片路径 */
+    background-size: cover; /* 使背景图片覆盖整个区域 */
+    background-repeat: no-repeat; /* 不重复背景图片 */
+    background-position: center; /* 使背景图片居中显示 */
+    z-index: -1; /* 确保背景图片在其他内容之下 */
+}
+
+
+/* 头部样式 */
+.header {
+    background-color: #f1f1f1;
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 58%;
+    margin: 0 auto;
+}
+
+.header .header-content {
+    display: flex;
+    align-items: center;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 2.5em;
+    font-weight: bold;
+    color: #2e7d32;
+    text-align: left;
+    width: 100%;
+    flex: 1;
+    padding-left: 300px;
+    font-family: 'Pacifico', cursive;
+}
+
+.header .icon {
+    font-size: 3em;
+    color: #2e7d32;
+    margin-right: 10px;
+}
+
+/* 语言选择器样式 */
+.language-selector {
+    position: relative;
+}
+
+.language-selector select {
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #4CAF50;
+    background-color: #ffffff;
+    width: 120px;
+    font-size: 1em;
+    appearance: none;
+    outline: none;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.language-selector select:hover {
+    border-color: #b5d7b6;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.language-selector select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    background-color: #fafced;
+}
+
+.language-selector::after {
+    content: "▼";
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.8em;
+    color: #4CAF50;
+    pointer-events: none;
+}
+
+.sidebar-left {
+    position: fixed; /* 固定位置 */
+    top: 100px; /* 距离顶部的距离 */
+    left: 40px; /* 距离右边的距离 */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* 阴影效果 */
+    border-radius: 10px;
+    z-index: 1000; /* 确保悬浮窗在其他内容之上 */
+}
+.local-weather {
+    background: linear-gradient(to top right, #b2ebf2, #ffe0b2);
+    border-radius: 10px;
+    display: flex;
+    height: 400px;
+    width: 250px; /* 宽度 */
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    justify-content: space-between;
+}
+
+.local-weather h3 {
+    margin: 20px 0 0;
+    font-size: 1.5em;
+}
+
+.local-weather .city-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin: 10px 0;
+    object-fit: cover;
+}
+
+.local-weather .weather-info {
+    font-size: 1.2em;
+    margin: 10px 0;
+}
+
+.local-weather .details {
+    font-size: 1em;
+    color: #007bff;
+    text-decoration: none;
+    margin: 0 0 20px;
+    transition: color 0.3s;
+}
+
+.local-weather .details:hover {
+    color: #0056b3;
+}
+
+/* 搜索框样式 */
+.search-box {
+    display: flex;
+    align-items: center;
+    background-color: #e0f7fa;
+    border-radius: 8px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 240px;
+    padding: 5px;
+    border: 1px solid #4CAF50;
+    margin-bottom: 20px;
+}
+
+.search-box input {
+    padding: 10px;
+    width: 70%;
+    border-radius: 5px;
+    outline: none;
+    font-size: 1em;
+    border: none;
+    background-color: #e0f7fa;
+    transition: box-shadow 0.3s;
+}
+
+.search-box input:focus {
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+}
+
+.search-box button {
+    width: 30%;
+    padding: 10px 0;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.1s;
+    font-size: 1em;
+}
+
+.search-box button:hover {
+    background-color: #388E3C;
+    transform: scale(1.05);
+}
+
+/* 城市天气样式 */
+.city-weather {
+    background-color: #fff;
+    border-radius: 12px;
+    min-height: 320px;
+    position: fixed;
+    right: 20px;
+    top: 100px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    z-index: 100;
+    padding: 15px;
+    transition: box-shadow 0.3s;
+}
+
+.city-weather:hover {
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.25);
+}
+
+.city-weather h3 {
+    margin: 10px 0;
+    font-size: 1.6em;
+    color: #00796b;
+    text-align: center;
+    font-family: 'Trebuchet MS', sans-serif;
+    border-bottom: 2px solid #4CAF50;
+    padding-bottom: 5px;
+}
+
+.city-weather ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.city-weather li {
+    background-color: #e0f7fa;
+    border: 1px solid #4CAF50;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.city-weather li:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 热度级别样式 */
+.heat-level {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    margin-left: 10px;
+    border: 1px solid #333;
+}
+
+/* 热度颜色 */
+.heat-level[data-heat="blue"] { background-color: #2196f3; }
+.heat-level[data-heat="green"] { background-color: #4caf50; }
+.heat-level[data-heat="yellow"] { background-color: #ffeb3b; }
+.heat-level[data-heat="orange"] { background-color: #ff9800; }
+.heat-level[data-heat="red"] { background-color: #f44336; }
+
+
+
+/* 页脚样式 */
+footer {
+    background-color: #000;
+    text-align: center;
+    padding: 10px 0;
+    color: #fff;
+    width: 60%;
+    position: absolute; /* 使用绝对定位 */
+    bottom: 0; /* 距离底部0 */
+    left: 50%; /* 水平居中 */
+    transform: translateX(-50%); /* 使其相对于自身宽度居中 */
+    margin: 20px 0 0; /* 上外边距为20px，底部无外边距 */
+}
+
+
+/* 滑块样式 */
+.slider {
+    position: relative;
+    margin: 20px auto;
+    width: 58%;
+}
+
+.slide {
+    display: none; /* 默认隐藏所有页面 */
+}
+
+.slider-controls {
+    text-align: center;
+    margin-top: 15px;
+}
+
+.slider-button {
+    padding: 12px 18px;
+    margin: 0 20px;
+    background-color: transparent; /* 背景透明 */
+    color: #4CAF50; /* 常态字体颜色为绿色 */
+    border: 2px solid #4CAF50; /* 边框颜色与字体相同 */
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s, color 0.3s;
+    font-size: 1em;
+}
+
+.slider-button:hover {
+    background-color: rgba(76, 175, 80, 0.2); /* 鼠标悬停时为轻微绿色背景 */
+    color: #388E3C; /* 悬停时字体颜色加深 */
+    transform: scale(1.05); /* 悬停时放大 */
+}
+
+.slider-button.active {
+    background-color: rgba(33, 150, 243, 0.2); /* 激活时背景为透明蓝色 */
+    color: #ffffff; /* 激活时字体颜色为白色 */
+    border: 2px solid rgba(33, 150, 243, 0.8); /* 激活时边框为透明蓝色 */
+    transform: scale(1.05); /* 激活状态下保持放大效果 */
+}
+
+
+
+/* 天气数据样式 */
+.weather-data {
+    width: 58%;
+    margin: 20px auto;
+    display: flex;
+    justify-content: space-between;
+}
+
+
